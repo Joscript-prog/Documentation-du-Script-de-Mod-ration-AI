@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modération AI - Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --danger: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7ff;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--box-shadow);
+            z-index: 1000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand i {
+            margin-right: 0.5rem;
+        }
+
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-left: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 0;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary);
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 8rem 2rem 4rem;
+            background: linear-gradient(135deg, #f5f7ff 0%, #e8ecff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(67, 97, 238, 0.1) 0%, rgba(67, 97, 238, 0) 70%);
+            z-index: 0;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            color: var(--dark);
+        }
+
+        .hero-text h1 span {
+            color: var(--primary);
+        }
+
+        .hero-text p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
+            max-width: 90%;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .hero-image {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            transform: perspective(1000px) rotateY(-10deg);
+            transition: var(--transition);
+        }
+
+        .hero-image:hover img {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+
+        /* Features Section */
+        .section {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .section-title p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border: 1px solid var(--gray-light);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(67, 97, 238, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .feature-card p {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Screenshots Section */
+        .screenshots {
+            background-color: var(--light);
+        }
+
+        .screenshots-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 2rem;
+            padding: 2rem 0;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .screenshots-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .screenshots-container::-webkit-scrollbar-track {
+            background: var(--gray-light);
+            border-radius: 10px;
+        }
+
+        .screenshots-container::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 10px;
+        }
+
+        .screenshot {
+            min-width: 80%;
+            scroll-snap-align: start;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .screenshot:hover {
+            transform: scale(1.02);
+        }
+
+        .screenshot img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .screenshot-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        /* Documentation Section */
+        .docs-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 3rem;
+        }
+
+        .docs-sidebar {
+            position: sticky;
+            top: 6rem;
+            align-self: start;
+            height: calc(100vh - 8rem);
+            overflow-y: auto;
+        }
+
+        .docs-nav {
+            list-style: none;
+        }
+
+        .docs-nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .docs-nav a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--dark);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .docs-nav a:hover, .docs-nav a.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+
+        .docs-nav a.active {
+            font-weight: 600;
+        }
+
+        .docs-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 3rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .docs-content h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        .docs-content h3 {
+            font-size: 1.5rem;
+            margin: 2rem 0 1rem;
+            color: var(--dark);
+        }
+
+        .docs-content p {
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+
+        .docs-content ul, .docs-content ol {
+            margin-bottom: 1.5rem;
+            padding-left: 2rem;
+        }
+
+        .docs-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .code-block {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        .feature-highlight {
+            background-color: rgba(67, 97, 238, 0.05);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .feature-highlight h4 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 4rem 2rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .footer-about p {
+            margin-bottom: 1.5rem;
+            color: var(--gray-light);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.25rem;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            color: var(--primary);
+        }
+
+        .footer-links h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: var(--gray-light);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 3rem;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray-light);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text p {
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-image {
+                margin-top: 3rem;
+            }
+
+            .docs-container {
+                grid-template-columns: 1fr;
+            }
+
+            .docs-sidebar {
+                position: static;
+                height: auto;
+                margin-bottom: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-nav {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background-color: white;
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+                transform: translateY(-150%);
+                transition: transform 0.3s ease;
+                z-index: 999;
+            }
+
+            .navbar-nav.active {
+                transform: translateY(0);
+            }
+
+            .nav-item {
+                margin: 0;
+                padding: 0.5rem 0;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .screenshot {
+                min-width: 90%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero {
+                padding: 6rem 1rem 3rem;
+            }
+
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+
+            .hero-text p {
+                font-size: 1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .section {
+                padding: 4rem 1rem;
+            }
+
+            .feature-card {
+                padding: 1.5rem;
+            }
+
+            .docs-content {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <i class="fas fa-robot"></i> Modération AI
+        </a>
+        <div class="hamburger" id="hamburger">
+            <i class="fas fa-bars"></i>
+        </div>
+        <ul class="navbar-nav" id="navbarNav">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">Accueil</a>
+            </li>
+            <li class="nav-item">
+                <a href="features.html" class="nav-link">Fonctionnalités</a>
+            </li>
+            <li class="nav-item">
+                <a href="documentation.html" class="nav-link active">Documentation</a>
+            </li>
+            <li class="nav-item">
+                <a href="screenshots.html" class="nav-link">Captures d'écran</a>
+            </li>
+            <li class="nav-item">
+                <a href="contact.html" class="nav-link">Contact</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Documentation Section -->
+    <section class="section">
+        <div class="docs-container">
+            <aside class="docs-sidebar">
+                <ul class="docs-nav">
+                    <li><a href="#introduction" class="active">Introduction</a></li>
+                    <li><a href="#installation">Installation</a></li>
+                    <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+                    <li><a href="#modeles">Modèles IA</a></li>
+                    <li><a href="#picking">Système de Picking</a></li>
+                    <li><a href="#keywords">Gestion des Mots-clés</a></li>
+                    <li><a href="#training">Données d'Entraînement</a></li>
+                    <li><a href="#export">Export des Données</a></li>
+                    <li><a href="#performance">Performances</a></li>
+                </ul>
+            </aside>
+
+            <main class="docs-content">
+                <h1 id="introduction">Documentation du Script de Modération AI</h1>
+                
+                <p>Ce script permet une modération avancée des commentaires en utilisant plusieurs modèles d'intelligence artificielle combinés avec des listes de mots-clés statiques et dynamiques.</p>
+                
+                <div class="feature-highlight">
+                    <h4>Version Actuelle</h4>
+                    <p>v7.6.3 - Dernière mise à jour: 27/05/2024</p>
+                </div>
+
+                <h2 id="installation">Installation</h2>
+                <p>Pour installer le script, suivez ces étapes :</p>
+                <ol>
+                    <li>Installez l'extension Tampermonkey sur votre navigateur</li>
+                    <li>Cliquez sur le lien d'installation du script</li>
+                    <li>Confirmez l'installation dans Tampermonkey</li>
+                    <li>Ouvrez la page de modération pour voir l'interface s'afficher</li>
+                </ol>
+
+                <div class="code-block">
+                    // Exemple de configuration du script
+                    // ==UserScript==
+                    // @name    Modération AI
+                    // @namespace   http://tampermonkey.net/
+                    // @version   7.6.3
+                    // @description Modère les commentaires avec IA
+                    // @author    VotreNom
+                    // @match     https://moderatus.netino.com/*
+                    // @grant     GM.xmlHttpRequest
+                    // @grant     GM.addStyle
+                    // @require   https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js
+                    // ==/UserScript==
+                </div>
+
+                <h2 id="fonctionnalites">Fonctionnalités Principales</h2>
+                <p>Le script offre plusieurs fonctionnalités avancées :</p>
+                <ul>
+                    <li>Analyse des commentaires avec plusieurs modèles IA</li>
+                    <li>Détection de toxicité en temps réel</li>
+                    <li>Système de picking pour exporter les commentaires</li>
+                    <li>Gestion des mots-clés dynamiques</li>
+                    <li>Entraînement personnalisé du modèle</li>
+                    <li>Export des données en Excel</li>
+                </ul>
+
+                <h2 id="modeles">Modèles IA Utilisés</h2>
+                <p>Le script combine plusieurs modèles pour une analyse optimale :</p>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Modèles combinés</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">95%</div>
+                        <div class="stat-label">Précision</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">0.4s</div>
+                        <div class="stat-label">Temps moyen</div>
+                    </div>
+                </div>
+
+                <canvas id="modelChart" height="300"></canvas>
+
+                <h3>Universal Sentence Encoder</h3>
+                <p>Modèle de traitement du langage naturel qui convertit les phrases en vecteurs numériques.</p>
+
+                <h3>Toxicity Model</h3>
+                <p>Modèle pré-entraîné pour détecter différents types de toxicité dans les commentaires.</p>
+
+                <h3>Modèle Personnalisé</h3>
+                <p>Modèle spécifiquement entraîné sur vos données pour améliorer la détection.</p>
+
+                <h2 id="picking">Système de Picking</h2>
+                <p>Le système de picking permet de sélectionner des commentaires pour les exporter :</p>
+                
+                <div class="feature-highlight">
+                    <h4>Fonctionnalités du Picking</h4>
+                    <ul>
+                        <li>Sélection multiple de commentaires</li>
+                        <li>Stockage local des commentaires pickés</li>
+                        <li>Export en Excel avec mise en forme</li>
+                        <li>Interface utilisateur intuitive</li>
+                    </ul>
+                </div>
+
+                <h3>Comment utiliser le Picking</h3>
+                <ol>
+                    <li>Cliquez sur le bouton "PICK" à côté d'un commentaire</li>
+                    <li>Accédez à la sélection via le bouton "Process PICK"</li>
+                    <li>Exportez les commentaires sélectionnés en Excel</li>
+                </ol>
+
+                <h2 id="keywords">Gestion des Mots-clés</h2>
+                <p>Le système de mots-clés permet d'ajouter des règles de modération personnalisées :</p>
+                
+                <div class="feature-highlight">
+                    <h4>Types de Mots-clés</h4>
+                    <ul>
+                        <li><strong>Mots simples</strong> : Détection de mots individuels</li>
+                        <li><strong>Ensembles</strong> : Détection de combinaisons de mots</li>
+                        <li><strong>Statiques</strong> : Liste prédéfinie de mots sensibles</li>
+                        <li><strong>Dynamiques</strong> : Mots ajoutés par l'utilisateur</li>
+                    </ul>
+                </div>
+
+                <h3>Interface de Gestion</h3>
+                <p>L'interface permet d'ajouter, modifier et supprimer des mots-clés :</p>
+                <ul>
+                    <li>Ajout par lot avec séparation par virgules</li>
+                    <li>Import/Export des listes au format JSON</li>
+                    <li>Visualisation des mots-clés actifs</li>
+                </ul>
+
+                <h2 id="training">Données d'Entraînement</h2>
+                <p>Le système collecte des données pour améliorer le modèle personnalisé :</p>
+                
+                <canvas id="trainingChart" height="300"></canvas>
+
+                <h3>Comment marquer un commentaire</h3>
+                <ol>
+                    <li>Cliquez sur "☠ Toxique" pour marquer un commentaire comme toxique</li>
+                    <li>Cliquez sur "✓ OK" pour marquer un commentaire comme sain</li>
+                    <li>Accédez aux données via "Données d'entraînement"</li>
+                </ol>
+
+                <h2 id="export">Export des Données</h2>
+                <p>Plusieurs options d'export sont disponibles :</p>
+                
+                <div class="feature-highlight">
+                    <h4>Formats d'Export</h4>
+                    <ul>
+                        <li><strong>Excel</strong> : Format tableur avec colonnes</li>
+                        <li><strong>CSV</strong> : Format texte compatible</li>
+                        <li><strong>JSON</strong> : Pour les mots-clés et données</li>
+                    </ul>
+                </div>
+
+                <h3>Export Excel</h3>
+                <p>L'export Excel inclut toutes les métadonnées des commentaires :</p>
+                <ul>
+                    <li>ID, Origine, Statut</li>
+                    <li>Opérateur, Dates</li>
+                    <li>Pseudo, Commentaire</li>
+                </ul>
+
+                <h2 id="performance">Performances</h2>
+                <p>Le script est optimisé pour des performances optimales :</p>
+                
+                <canvas id="perfChart" height="300"></canvas>
+
+                <h3>Optimisations</h3>
+                <ul>
+                    <li>Chargement asynchrone des modèles</li>
+                    <li>Analyse par lots pour réduire la charge</li>
+                    <li>Stockage local pour éviter les requêtes répétées</li>
+                    <li>Interface non bloquante</li>
+                </ul>
+            </main>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-about">
+                <a href="#" class="footer-logo">
+                    <i class="fas fa-robot"></i> Modération AI
+                </a>
+                <p>Un système avancé de modération des commentaires utilisant l'intelligence artificielle pour une détection précise du contenu toxique.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h3>Liens Rapides</h3>
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="features.html">Fonctionnalités</a></li>
+                    <li><a href="documentation.html">Documentation</a></li>
+                    <li><a href="screenshots.html">Captures</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h3>Ressources</h3>
+                <ul>
+                    <li><a href="#">Téléchargement</a></li>
+                    <li><a href="#">API</a></li>
+                    <li><a href="#">Support</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h3>Légal</h3>
+                <ul>
+                    <li><a href="#">Confidentialité</a></li>
+                    <li><a href="#">Conditions</a></li>
+                    <li><a href="#">Licence</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Modération AI. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Navigation mobile
+        document.getElementById('hamburger').addEventListener('click', function() {
+            document.getElementById('navbarNav').classList.toggle('active');
+        });
+
+        // Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Model Usage Chart
+            const modelCtx = document.getElementById('modelChart').getContext('2d');
+            const modelChart = new Chart(modelCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['USE', 'Toxicity', 'Personnalisé'],
+                    datasets: [{
+                        data: [35, 40, 25],
+                        backgroundColor: [
+                            '#4361ee',
+                            '#3f37c9',
+                            '#4895ef'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Répartition des Modèles',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Training Data Chart
+            const trainingCtx = document.getElementById('trainingChart').getContext('2d');
+            const trainingChart = new Chart(trainingCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+                    datasets: [{
+                        label: 'Toxiques',
+                        data: [120, 190, 170, 220, 250, 280],
+                        backgroundColor: '#f72585',
+                        borderWidth: 0
+                    }, {
+                        label: 'Sains',
+                        data: [80, 110, 130, 150, 180, 200],
+                        backgroundColor: '#4cc9f0',
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Données d\'Entraînement par Mois',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Performance Chart
+            const perfCtx = document.getElementById('perfChart').getContext('2d');
+            const perfChart = new Chart(perfCtx, {
+                type: 'line',
+                data: {
+                    labels: ['v7.0', 'v7.1', 'v7.2', 'v7.3', 'v7.4', 'v7.5', 'v7.6'],
+                    datasets: [{
+                        label: 'Précision (%)',
+                        data: [82, 85, 87, 89, 91, 93, 95],
+                        borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }, {
+                        label: 'Temps (ms)',
+                        data: [800, 700, 650, 600, 550, 500, 450],
+                        borderColor: '#f72585',
+                        backgroundColor: 'rgba(247, 37, 133, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Évolution des Performances',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Animation on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.feature-card, .stat-card, .section-title').forEach((el, index) => {
+            el.classList.add(`delay-${index % 4}`);
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
